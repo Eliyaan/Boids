@@ -10,12 +10,12 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 2000
+    nb_boids = 1500
     boid_size = 2
-    speed = 3
-    detect_radius = 20
+    speed = 2
+    detect_radius = 15
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 5*5
+    pow_trop_pres = 27
 )
 
 [heap]
@@ -124,11 +124,11 @@ fn on_frame(mut app App) {
         }
         moy_coord_x /= nb_near
         moy_coord_y /= nb_near
-        boid.dir_x = (moy_coord_x - boid.x)//*0.1
-        boid.dir_y = (moy_coord_y - boid.y)//*0.1
+        boid.dir_x += (moy_coord_x - boid.x)*0.1
+        boid.dir_y += (moy_coord_y - boid.y)*0.1
         // SEPARATION
-        boid.dir_x += moy_separation_x //* 0.2
-        boid.dir_y += moy_separation_y //* 0.2
+        boid.dir_x += moy_separation_x * 0.2
+        boid.dir_y += moy_separation_y * 0.2
 
 
 
@@ -143,15 +143,15 @@ fn on_frame(mut app App) {
             boid.x += int(boid.dir_x)
             boid.y += int(boid.dir_y)
         }
-        //boid.dir_x *= 0.5
-        //boid.dir_y *= 0.5
+        boid.dir_x *= 0.5
+        boid.dir_y *= 0.5
 
         //draw
-        mut color := u8(32)
-        if nb_near*7 > 223{
+        mut color := u8(16)
+        if nb_near*4 > 239{
             color = 255
         }else{
-            color += u8(nb_near*7)
+            color += u8(nb_near*4)
         }
         
         app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{color, 0, 0, 255})
