@@ -10,12 +10,12 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 1000
-    boid_size = 2
+    nb_boids = 500
+    boid_size = 4
     speed = 2
-    detect_radius = 15
+    detect_radius = 30
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 27
+    pow_trop_pres = 20
 )
 
 [heap]
@@ -25,6 +25,8 @@ struct Boid{
     y int
     dir_x f64
     dir_y f64
+    delta_dir_x f64
+    delta_dir_y f64
 }
 
 
@@ -51,7 +53,7 @@ fn main() {
         frame_fn: on_frame
     )
     for _ in 0..nb_boids{
-        app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!}
+        app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
     }
     //lancement du programme/de la fenêtre
     app.gg.run()
@@ -102,6 +104,44 @@ fn on_frame(mut app App) {
                             }
                         }
                     }
+                }else if i + l < 0{
+                    if j+c < 0{
+                        for other in app.opti_list[i+l+win_height/detect_radius][j+c+win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x - win_width)),2)+m.pow(m.abs(boid.y - (other.y - win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x-win_width, other.y-win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else if j+c >win_height/detect_radius{
+                        /*for other in app.opti_list[i+l+win_height/detect_radius][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - other.x + win_width),2)+m.pow(m.abs(boid.y - other.y + win_height),2)
+                            if dist < pow_detec_radius{
+                                mut new_crea := other
+                                new_crea.x -= win_width
+                                new_crea.y -= win_height
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea // a modifier
+                                }else{
+                                    boids_normal << new_crea// a modifier
+                                }
+                            }
+                        }*/
+                    }else{
+
+                    }
+                }else if i+l > win_width/detect_radius{
+                    if j+c < 0{
+
+                    }else if j+c >win_height/detect_radius{
+                        
+                    }else{
+
+                    }
                 }
             }
         }
@@ -112,39 +152,50 @@ fn on_frame(mut app App) {
         // SEPARATION
         mut moy_separation_x := 0.0
         mut moy_separation_y := 0.0
+        //ALIGNEMENT
+        mut moy_alignement_x := 0.0
+        mut moy_alignement_y := 0.0
         for other in boids_trop{
             moy_coord_x += other.x
             moy_coord_y += other.y
             moy_separation_x += boid.x - other.x
             moy_separation_y += boid.y - other.y
+            moy_alignement_x += other.dir_x
+            moy_alignement_y += other.dir_y
         }
         for other in boids_normal{
             moy_coord_x += other.x
             moy_coord_y += other.y
+            moy_alignement_x += other.dir_x
+            moy_alignement_y += other.dir_y
         }
         moy_coord_x /= nb_near
         moy_coord_y /= nb_near
-        boid.dir_x += (moy_coord_x - boid.x)*0.1
-        boid.dir_y += (moy_coord_y - boid.y)*0.1
+        boid.dir_x += ((moy_coord_x - boid.x)*0.5)
+        boid.dir_y += ((moy_coord_y - boid.y)*0.5)
         // SEPARATION
-        boid.dir_x += moy_separation_x * 0.15
-        boid.dir_y += moy_separation_y * 0.15
+        boid.x += int(moy_separation_x * 0.5)
+        boid.y += int(moy_separation_y * 0.5)
+        //ALIGNEMENT
+        boid.dir_x += (moy_alignement_x * 0.5)
+        boid.dir_y += (moy_alignement_y * 0.5)
 
-
-
-
+        //Apply change
+        boid.dir_x += boid.delta_dir_x*0.2
+        boid.dir_y += boid.delta_dir_y*0.2
 
         //Apply vector
-        //Need normalisation
         mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
         if prop_coef > 0{
-            boid.dir_x /= prop_coef
-            boid.dir_y /= prop_coef
+            boid.dir_x /= prop_coef*0.8
+            boid.dir_y /= prop_coef*0.8
             boid.x += int(boid.dir_x)
             boid.y += int(boid.dir_y)
         }
-        boid.dir_x *= 0.5
-        boid.dir_y *= 0.5
+        boid.dir_x *= 0.25
+        boid.dir_y *= 0.25
+        //boid.delta_dir_x = 0.0
+        //boid.delta_dir_y = 0.0
 
         //draw
         mut red_color := u8(0)
