@@ -1,3 +1,5 @@
+//Detection d'attirance à l'autre coté
+
 module main
 import gg
 import gx
@@ -7,7 +9,7 @@ import math as m
 const (
     win_width    = 600
     win_height   = 600
-    bg_color     = gx.black
+    bg_color     = gx.white
     nb_boids = 500
     boid_size = 2
     speed = 3
@@ -92,29 +94,49 @@ fn on_frame(mut app App) {
                 }
             }
         }
+        nb_near := boids_trop.len + boids_normal.len
         // COHESION
         mut moy_coord_x := 0.0
         mut moy_coord_y := 0.0
+        // SEPARATION
+        mut moy_separation_x := 0.0
+        mut moy_separation_y := 0.0
         for other in boids_trop{
             moy_coord_x += other.x
             moy_coord_y += other.y
+            moy_separation_x += moy_coord_x - boid.x
+            moy_separation_y += moy_coord_y - boid.y
         }
         for other in boids_normal{
             moy_coord_x += other.x
             moy_coord_y += other.y
         }
-        moy_coord_x /= boids_trop.len + boids_normal.len
-        moy_coord_y /= boids_trop.len + boids_normal.len
+        moy_coord_x /= nb_near
+        moy_coord_y /= nb_near
         boid.dir_x = moy_coord_x - boid.x
         boid.dir_y = moy_coord_y - boid.y
+        // SEPARATION
+        boid.dir_x +=
+        boid.dir_y +=
 
 
 
+
+
+        //Apply vector
+        //Need normalisation
         boid.x += int(boid.dir_x*speed)
         boid.y += int(boid.dir_y*speed)
 
         //draw
-        app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.red)
+        mut color := u8(64)
+        if nb_near > 191{
+            color = 255
+        }else{
+            color += u8(nb_near)
+        }
+        
+        app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{color, 10, 10, 255})
     }
     app.gg.end()
 }
