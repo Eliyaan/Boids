@@ -172,31 +172,31 @@ fn on_frame(mut app App) {
         }
         moy_coord_x /= nb_near
         moy_coord_y /= nb_near
-        boid.x += ((moy_coord_x - boid.x)*0.5)
-        boid.y += ((moy_coord_y - boid.y)*0.5)
+        boid.dir_x += int((moy_coord_x - boid.x)*0.5)
+        boid.dir_y += int((moy_coord_y - boid.y)*0.5)
         // SEPARATION
         boid.x += int(moy_separation_x * 0.6)
         boid.y += int(moy_separation_y * 0.6)
         //ALIGNEMENT
-        boid.x += int(moy_alignement_x * 0.001)
-        boid.y += int(moy_alignement_y * 0.001)
+        boid.dir_x += int(moy_alignement_x * 0.5)
+        boid.dir_y += int(moy_alignement_y * 0.5)
 
         //Apply change
         boid.dir_x += boid.delta_dir_x*0.1
         boid.dir_y += boid.delta_dir_y*0.1
 
         //Apply vector
-        //mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
-        //if prop_coef > 0{
-        //    boid.dir_x /= prop_coef*0.9
-        //    boid.dir_y /= prop_coef*0.9
-        //    boid.x += int(boid.dir_x)
-        //    boid.y += int(boid.dir_y)
-        //}
-        //boid.dir_x *= 0.25
-        //boid.dir_y *= 0.25
-        //boid.delta_dir_x = 0.0
-        //boid.delta_dir_y = 0.0
+        mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
+        if prop_coef > 0{
+            boid.dir_x /= prop_coef*0.9
+            boid.dir_y /= prop_coef*0.9
+            boid.x += int(boid.dir_x)
+            boid.y += int(boid.dir_y)
+        }
+        boid.dir_x *= 0.25
+        boid.dir_y *= 0.25
+        boid.delta_dir_x = 0.0
+        boid.delta_dir_y = 0.0
 
         //draw
         mut red_color := u8(0)
