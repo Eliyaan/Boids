@@ -57,12 +57,9 @@ fn main() {
     app.gg.run()
 }
 
-fn on_frame(mut app App) {
-    //Draw
-    app.gg.begin()
+
+fn (mut app App) store_boids_opti_grid(){
     for mut boid in app.boids{
-        mut boids_trop := []Boid{}
-        mut boids_normal := []Boid{}
         //store to the right list
         if boid.x >= win_width{
             boid.x -= win_width
@@ -77,7 +74,19 @@ fn on_frame(mut app App) {
         i := int(boid.x/detect_radius)
         j := int(boid.y/detect_radius)
         app.opti_list[i][j] << &boid
+    }
+}
 
+
+fn on_frame(mut app App) {
+    //Draw
+    app.store_boids_opti_grid()
+    app.gg.begin()
+    for mut boid in app.boids{
+        mut boids_trop := []Boid{}
+        mut boids_normal := []Boid{}
+        i := int(boid.x/detect_radius)
+        j := int(boid.y/detect_radius)
         for l in -1..2{
             for c in -1..2{
                 if i + l >= 0 && i + l < win_width/detect_radius && j + c >= 0 && j + c < win_height/detect_radius{
@@ -116,8 +125,7 @@ fn on_frame(mut app App) {
         boid.dir_x = moy_coord_x - boid.x
         boid.dir_y = moy_coord_y - boid.y
         // SEPARATION
-        boid.dir_x +=
-        boid.dir_y +=
+
 
 
 
@@ -139,4 +147,5 @@ fn on_frame(mut app App) {
         app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{color, 10, 10, 255})
     }
     app.gg.end()
+    app.opti_list = [][][]&Boid{len:win_width/detect_radius, init:[][]&Boid{len:win_height/detect_radius, init:[]&Boid{cap:10}}}
 }
