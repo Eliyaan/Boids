@@ -10,12 +10,12 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 500
+    nb_boids = 2000
     boid_size = 2
     speed = 3
     detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 3*3
+    pow_trop_pres = 5*5
 )
 
 [heap]
@@ -61,14 +61,16 @@ fn main() {
 fn (mut app App) store_boids_opti_grid(){
     for mut boid in app.boids{
         //store to the right list
-        if boid.x >= win_width{
+        for boid.x >= win_width{
             boid.x -= win_width
-        }else if boid.x < 0{
+        }
+        for boid.x < 0{
             boid.x += win_width
         }
-        if boid.y >= win_height{
+        for boid.y >= win_height{
             boid.y -= win_height
-        }else if boid.y < 0{
+        }
+        for boid.y < 0{
             boid.y += win_height
         }
         i := int(boid.x/detect_radius)
@@ -122,11 +124,11 @@ fn on_frame(mut app App) {
         }
         moy_coord_x /= nb_near
         moy_coord_y /= nb_near
-        boid.dir_x = moy_coord_x - boid.x
-        boid.dir_y = moy_coord_y - boid.y
+        boid.dir_x = (moy_coord_x - boid.x)//*0.1
+        boid.dir_y = (moy_coord_y - boid.y)//*0.1
         // SEPARATION
-        boid.dir_x += moy_separation_x
-        boid.dir_y += moy_separation_y
+        boid.dir_x += moy_separation_x //* 0.2
+        boid.dir_y += moy_separation_y //* 0.2
 
 
 
@@ -134,11 +136,15 @@ fn on_frame(mut app App) {
 
         //Apply vector
         //Need normalisation
-        mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_x, 2)) / speed
+        mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
         if prop_coef > 0{
-            boid.x += int(boid.dir_x/prop_coef)
-            boid.y += int(boid.dir_y/prop_coef)
+            boid.dir_x /= prop_coef
+            boid.dir_y /= prop_coef
+            boid.x += int(boid.dir_x)
+            boid.y += int(boid.dir_y)
         }
+        //boid.dir_x *= 0.5
+        //boid.dir_y *= 0.5
 
         //draw
         mut color := u8(32)
