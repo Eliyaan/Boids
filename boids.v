@@ -10,12 +10,12 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 500
-    boid_size = 4
+    nb_boids = 1000
+    boid_size = 3
     speed = 2
     detect_radius = 30
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 20
+    pow_trop_pres = 28
 )
 
 [heap]
@@ -51,6 +51,7 @@ fn main() {
         user_data: app
         bg_color: bg_color
         frame_fn: on_frame
+        sample_count: 2
     )
     for _ in 0..nb_boids{
         app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
@@ -171,29 +172,29 @@ fn on_frame(mut app App) {
         }
         moy_coord_x /= nb_near
         moy_coord_y /= nb_near
-        boid.dir_x += ((moy_coord_x - boid.x)*0.5)
-        boid.dir_y += ((moy_coord_y - boid.y)*0.5)
+        boid.x += ((moy_coord_x - boid.x)*0.5)
+        boid.y += ((moy_coord_y - boid.y)*0.5)
         // SEPARATION
-        boid.x += int(moy_separation_x * 0.5)
-        boid.y += int(moy_separation_y * 0.5)
+        boid.x += int(moy_separation_x * 0.6)
+        boid.y += int(moy_separation_y * 0.6)
         //ALIGNEMENT
-        boid.dir_x += (moy_alignement_x * 0.5)
-        boid.dir_y += (moy_alignement_y * 0.5)
+        boid.x += int(moy_alignement_x * 0.001)
+        boid.y += int(moy_alignement_y * 0.001)
 
         //Apply change
-        boid.dir_x += boid.delta_dir_x*0.2
-        boid.dir_y += boid.delta_dir_y*0.2
+        boid.dir_x += boid.delta_dir_x*0.1
+        boid.dir_y += boid.delta_dir_y*0.1
 
         //Apply vector
-        mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
-        if prop_coef > 0{
-            boid.dir_x /= prop_coef*0.8
-            boid.dir_y /= prop_coef*0.8
-            boid.x += int(boid.dir_x)
-            boid.y += int(boid.dir_y)
-        }
-        boid.dir_x *= 0.25
-        boid.dir_y *= 0.25
+        //mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
+        //if prop_coef > 0{
+        //    boid.dir_x /= prop_coef*0.9
+        //    boid.dir_y /= prop_coef*0.9
+        //    boid.x += int(boid.dir_x)
+        //    boid.y += int(boid.dir_y)
+        //}
+        //boid.dir_x *= 0.25
+        //boid.dir_y *= 0.25
         //boid.delta_dir_x = 0.0
         //boid.delta_dir_y = 0.0
 
