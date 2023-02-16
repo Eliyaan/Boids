@@ -10,7 +10,7 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 1500
+    nb_boids = 1000
     boid_size = 2
     speed = 2
     detect_radius = 15
@@ -127,8 +127,8 @@ fn on_frame(mut app App) {
         boid.dir_x += (moy_coord_x - boid.x)*0.1
         boid.dir_y += (moy_coord_y - boid.y)*0.1
         // SEPARATION
-        boid.dir_x += moy_separation_x * 0.2
-        boid.dir_y += moy_separation_y * 0.2
+        boid.dir_x += moy_separation_x * 0.15
+        boid.dir_y += moy_separation_y * 0.15
 
 
 
@@ -147,14 +147,20 @@ fn on_frame(mut app App) {
         boid.dir_y *= 0.5
 
         //draw
-        mut color := u8(16)
-        if nb_near*4 > 239{
-            color = 255
+        mut red_color := u8(0)
+        if nb_near*6 > 255{
+            red_color = 255
         }else{
-            color += u8(nb_near*4)
+            red_color += u8(nb_near*6)
+        }
+        mut blue_color := u8(0)
+        if boids_trop.len*20 > 255{
+            blue_color = 255
+        }else{
+            blue_color += u8(boids_trop.len*20)
         }
         
-        app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{color, 0, 0, 255})
+        app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{red_color, 0, blue_color, 255})
     }
     app.gg.end()
     app.opti_list = [][][]&Boid{len:win_width/detect_radius, init:[][]&Boid{len:win_height/detect_radius, init:[]&Boid{cap:10}}}
