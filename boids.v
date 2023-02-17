@@ -3,9 +3,13 @@
 //Belle UI pour changer les paramètres
 //Optimisation :D
 
+/*
+idées : 
+-mini batches ne prendre en compte que 10 boids autour de toi ?
 
 
 
+*/
 module main
 import gg
 import gx
@@ -25,6 +29,7 @@ const (
     cohesion = 1
     separation = 40
     alignement = 0.1
+    friction_reduc = 0.9
 )
 
 [heap]
@@ -228,20 +233,32 @@ fn on_frame(mut app App) {
         mut average_dir_y := 0.0
         mut delta_repoussage_x := 0.0
         mut delta_repoussage_y := 0.0
-        for other in boids_trop{
-            posi_cible_cohesion_x += other.x
-            posi_cible_cohesion_y += other.y
-            delta_repoussage_x += other.x
-            delta_repoussage_y += other.y
-            average_dir_x += other.dir_x
-            average_dir_y += other.dir_y
+        if boids_trop.len > 10{
+            for other in boids_trop{
+                posi_cible_cohesion_x += other.x
+                posi_cible_cohesion_y += other.y
+                delta_repoussage_x += other.x
+                delta_repoussage_y += other.y
+                average_dir_x += other.dir_x
+                average_dir_y += other.dir_y
+            }
+        }else{
+            for other in boids_trop{
+                posi_cible_cohesion_x += other.x
+                posi_cible_cohesion_y += other.y
+                delta_repoussage_x += other.x
+                delta_repoussage_y += other.y
+                average_dir_x += other.dir_x
+                average_dir_y += other.dir_y
+            }
+            for other in boids_normal{
+                posi_cible_cohesion_x += other.x
+                posi_cible_cohesion_y += other.y
+                average_dir_x += other.dir_x
+                average_dir_y += other.dir_y
+            }
         }
-        for other in boids_normal{
-            posi_cible_cohesion_x += other.x
-            posi_cible_cohesion_y += other.y
-            average_dir_x += other.dir_x
-            average_dir_y += other.dir_y
-        }
+        
         posi_cible_cohesion_x /= nb_near
         posi_cible_cohesion_y /= nb_near
         delta_repoussage_x /= boids_trop.len
@@ -258,8 +275,8 @@ fn on_frame(mut app App) {
         boid.x += boid.dir_x*speed
         boid.y += boid.dir_y*speed
 
-        boid.dir_x *= 0.9
-        boid.dir_y *= 0.9
+        boid.dir_x *= friction_reduc
+        boid.dir_y *= friction_reduc
 
 
         //draw
