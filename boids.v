@@ -1,4 +1,10 @@
-//Detection d'attirance à l'autre coté
+//A FAIRE
+
+//Belle UI pour changer les paramètres
+//Optimisation :D
+
+
+
 
 module main
 import gg
@@ -7,22 +13,25 @@ import rand as rd
 import math as m
 
 const (
-    win_width    = 600
-    win_height   = 600
+    win_width    = 640  //  /!\ the size must be un multiple du radius de détection
+    win_height   = 640
     bg_color     = gx.white
     nb_boids = 1000
-    boid_size = 3
-    speed = 2
-    detect_radius = 30
+    boid_size = 2
+    speed = 0.005
+    detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 28
+    pow_trop_pres = 12
+    cohesion = 1
+    separation = 40
+    alignement = 0.1
 )
 
 [heap]
 struct Boid{
     mut:
-    x int
-    y int
+    x f64
+    y f64
     dir_x f64
     dir_y f64
     delta_dir_x f64
@@ -51,7 +60,8 @@ fn main() {
         user_data: app
         bg_color: bg_color
         frame_fn: on_frame
-        sample_count: 2
+        sample_count: 6
+        fullscreen: true
     )
     for _ in 0..nb_boids{
         app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
@@ -94,18 +104,7 @@ fn on_frame(mut app App) {
         j := int(boid.y/detect_radius)
         for l in -1..2{
             for c in -1..2{
-                if i + l >= 0 && i + l < win_width/detect_radius && j + c >= 0 && j + c < win_height/detect_radius{
-                    for other in app.opti_list[i+l][j+c]{
-                        dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - other.y),2)
-                        if dist < pow_detec_radius{
-                            if dist < pow_trop_pres{
-                                boids_trop << other
-                            }else{
-                                boids_normal << other
-                            }
-                        }
-                    }
-                }else if i + l < 0{
+                if i + l < 0{
                     if j+c < 0{
                         for other in app.opti_list[i+l+win_height/detect_radius][j+c+win_width/detect_radius]{
                             dist := m.pow(m.abs(boid.x - (other.x - win_width)),2)+m.pow(m.abs(boid.y - (other.y - win_height)),2)
@@ -118,85 +117,150 @@ fn on_frame(mut app App) {
                                 }
                             }
                         }
-                    }else if j+c >win_height/detect_radius{
-                        /*for other in app.opti_list[i+l+win_height/detect_radius][j+c-win_width/detect_radius]{
-                            dist := m.pow(m.abs(boid.x - other.x + win_width),2)+m.pow(m.abs(boid.y - other.y + win_height),2)
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l+win_height/detect_radius][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x + win_width)),2)+m.pow(m.abs(boid.y - (other.y - win_height)),2)
                             if dist < pow_detec_radius{
-                                mut new_crea := other
-                                new_crea.x -= win_width
-                                new_crea.y -= win_height
+                                new_crea := Boid{other.x+win_width, other.y-win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
                                 if dist < pow_trop_pres{
-                                    boids_trop << new_crea // a modifier
+                                    boids_trop << new_crea 
                                 }else{
-                                    boids_normal << new_crea// a modifier
+                                    boids_normal << new_crea
                                 }
                             }
-                        }*/
+                        }
                     }else{
-
+                        for other in app.opti_list[i+l+win_height/detect_radius][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - (other.y - win_height) ),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x, other.y-win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
                     }
-                }else if i+l > win_width/detect_radius{
+                }else if i+l >= win_width/detect_radius{
                     if j+c < 0{
-
-                    }else if j+c >win_height/detect_radius{
-                        
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c+win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x - win_width)),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x-win_width, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x + win_width)),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x+win_width, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
                     }else{
-
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    if j+c < 0{
+                        for other in app.opti_list[i+l][j+c+win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x-win_width)),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x-win_width, other.y, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x+win_width)),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x+win_width, other.y, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else{
+                        for other in app.opti_list[i+l][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                if dist < pow_trop_pres{
+                                    boids_trop << other
+                                }else{
+                                    boids_normal << other
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
         nb_near := boids_trop.len + boids_normal.len
-        // COHESION
-        mut moy_coord_x := 0.0
-        mut moy_coord_y := 0.0
-        // SEPARATION
-        mut moy_separation_x := 0.0
-        mut moy_separation_y := 0.0
-        //ALIGNEMENT
-        mut moy_alignement_x := 0.0
-        mut moy_alignement_y := 0.0
+
+        mut posi_cible_cohesion_x := 0.0
+        mut posi_cible_cohesion_y := 0.0
+        mut average_dir_x := 0.0
+        mut average_dir_y := 0.0
+        mut delta_repoussage_x := 0.0
+        mut delta_repoussage_y := 0.0
         for other in boids_trop{
-            moy_coord_x += other.x
-            moy_coord_y += other.y
-            moy_separation_x += boid.x - other.x
-            moy_separation_y += boid.y - other.y
-            moy_alignement_x += other.dir_x
-            moy_alignement_y += other.dir_y
+            posi_cible_cohesion_x += other.x
+            posi_cible_cohesion_y += other.y
+            delta_repoussage_x += other.x
+            delta_repoussage_y += other.y
+            average_dir_x += other.dir_x
+            average_dir_y += other.dir_y
         }
         for other in boids_normal{
-            moy_coord_x += other.x
-            moy_coord_y += other.y
-            moy_alignement_x += other.dir_x
-            moy_alignement_y += other.dir_y
+            posi_cible_cohesion_x += other.x
+            posi_cible_cohesion_y += other.y
+            average_dir_x += other.dir_x
+            average_dir_y += other.dir_y
         }
-        moy_coord_x /= nb_near
-        moy_coord_y /= nb_near
-        boid.dir_x += int((moy_coord_x - boid.x)*0.5)
-        boid.dir_y += int((moy_coord_y - boid.y)*0.5)
-        // SEPARATION
-        boid.x += int(moy_separation_x * 0.6)
-        boid.y += int(moy_separation_y * 0.6)
-        //ALIGNEMENT
-        boid.dir_x += int(moy_alignement_x * 0.5)
-        boid.dir_y += int(moy_alignement_y * 0.5)
+        posi_cible_cohesion_x /= nb_near
+        posi_cible_cohesion_y /= nb_near
+        delta_repoussage_x /= boids_trop.len
+        delta_repoussage_y /= boids_trop.len
+        average_dir_x /= nb_near
+        average_dir_y /= nb_near
+        delta_repoussage_x = boid.x - delta_repoussage_x
+        delta_repoussage_y = boid.y - delta_repoussage_y
+        posi_cible_cohesion_x -= boid.x
+        posi_cible_cohesion_y -= boid.y
 
-        //Apply change
-        boid.dir_x += boid.delta_dir_x*0.1
-        boid.dir_y += boid.delta_dir_y*0.1
+        boid.dir_x += average_dir_x*alignement + posi_cible_cohesion_x*cohesion + delta_repoussage_x*separation
+        boid.dir_y += average_dir_y*alignement + posi_cible_cohesion_y*cohesion + delta_repoussage_y*separation
+        boid.x += boid.dir_x*speed
+        boid.y += boid.dir_y*speed
 
-        //Apply vector
-        mut prop_coef := m.sqrt(m.pow(boid.dir_x, 2)+m.pow(boid.dir_y, 2)) / speed
-        if prop_coef > 0{
-            boid.dir_x /= prop_coef*0.9
-            boid.dir_y /= prop_coef*0.9
-            boid.x += int(boid.dir_x)
-            boid.y += int(boid.dir_y)
-        }
-        boid.dir_x *= 0.25
-        boid.dir_y *= 0.25
-        boid.delta_dir_x = 0.0
-        boid.delta_dir_y = 0.0
+        boid.dir_x *= 0.9
+        boid.dir_y *= 0.9
+
 
         //draw
         mut red_color := u8(0)
@@ -212,7 +276,7 @@ fn on_frame(mut app App) {
             blue_color += u8(boids_trop.len*20)
         }
         
-        app.gg.draw_circle_filled(boid.x, boid.y, boid_size, gx.Color{red_color, 0, blue_color, 255})
+        app.gg.draw_circle_filled(f32(boid.x +50), f32(boid.y+60), boid_size, gx.Color{red_color, 0, blue_color, 255})
     }
     app.gg.end()
     app.opti_list = [][][]&Boid{len:win_width/detect_radius, init:[][]&Boid{len:win_height/detect_radius, init:[]&Boid{cap:10}}}
