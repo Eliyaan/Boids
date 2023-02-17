@@ -15,9 +15,9 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 700
+    nb_boids = 1000
     boid_size = 2
-    speed = 0.1
+    speed = 0.05
     detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
     pow_trop_pres = 12
