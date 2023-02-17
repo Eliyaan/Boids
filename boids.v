@@ -15,12 +15,15 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 1000
-    boid_size = 3
-    speed = 2
-    detect_radius = 30
+    nb_boids = 500
+    boid_size = 2
+    speed = 0.1
+    detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 28
+    pow_trop_pres = 10
+    cohesion = 1
+    separation = 30
+    alignement = 30
 )
 
 [heap]
@@ -56,7 +59,7 @@ fn main() {
         user_data: app
         bg_color: bg_color
         frame_fn: on_frame
-        sample_count: 2
+        sample_count: 10
     )
     for _ in 0..nb_boids{
         app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
@@ -216,7 +219,39 @@ fn on_frame(mut app App) {
             }
         }
         nb_near := boids_trop.len + boids_normal.len
-        
+
+        mut posi_cible_cohesion_x := 0.0
+        mut posi_cible_cohesion_y := 0.0
+        mut average_dir_x := 0.0
+        mut average_dir_y := 0.0
+        mut delta_repoussage_x := 0.0
+        mut delta_repoussage_y := 0.0
+        for other in boids_trop{
+            posi_cible_cohesion_x += other.x
+            posi_cible_cohesion_y += other.y
+            delta_repoussage_x += other.x
+            delta_repoussage_y += other.y
+        }
+        for other in boids_normal{
+            posi_cible_cohesion_x += other.x
+            posi_cible_cohesion_y += other.y
+        }
+        posi_cible_cohesion_x /= nb_near
+        posi_cible_cohesion_y /= nb_near
+        delta_repoussage_x /= boids_trop.len
+        delta_repoussage_y /= boids_trop.len
+        delta_repoussage_x = boid.x - delta_repoussage_x
+        delta_repoussage_y = boid.y - delta_repoussage_y
+        posi_cible_cohesion_x -= boid.x
+        posi_cible_cohesion_y -= boid.y
+
+        boid.dir_x += average_dir_x + posi_cible_cohesion_x*cohesion + delta_repoussage_x*separation
+        boid.dir_y += average_dir_y + posi_cible_cohesion_y*cohesion + delta_repoussage_y*separation
+        boid.x += boid.dir_x/10*speed
+        boid.y += boid.dir_y/10*speed
+
+        boid.dir_x *= 0.9
+        boid.dir_y *= 0.9
 
 
         //draw
