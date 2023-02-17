@@ -1,4 +1,9 @@
-//Detection d'attirance à l'autre coté
+//A FAIRE
+
+//Après : refonte du mvt
+
+
+
 
 module main
 import gg
@@ -94,18 +99,7 @@ fn on_frame(mut app App) {
         j := int(boid.y/detect_radius)
         for l in -1..2{
             for c in -1..2{
-                if i + l >= 0 && i + l < win_width/detect_radius && j + c >= 0 && j + c < win_height/detect_radius{
-                    for other in app.opti_list[i+l][j+c]{
-                        dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - other.y),2)
-                        if dist < pow_detec_radius{
-                            if dist < pow_trop_pres{
-                                boids_trop << other
-                            }else{
-                                boids_normal << other
-                            }
-                        }
-                    }
-                }else if i + l < 0{
+                if i + l < 0{
                     if j+c < 0{
                         for other in app.opti_list[i+l+win_height/detect_radius][j+c+win_width/detect_radius]{
                             dist := m.pow(m.abs(boid.x - (other.x - win_width)),2)+m.pow(m.abs(boid.y - (other.y - win_height)),2)
@@ -118,30 +112,105 @@ fn on_frame(mut app App) {
                                 }
                             }
                         }
-                    }else if j+c >win_height/detect_radius{
-                        /*for other in app.opti_list[i+l+win_height/detect_radius][j+c-win_width/detect_radius]{
-                            dist := m.pow(m.abs(boid.x - other.x + win_width),2)+m.pow(m.abs(boid.y - other.y + win_height),2)
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l+win_height/detect_radius][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x + win_width)),2)+m.pow(m.abs(boid.y - (other.y - win_height)),2)
                             if dist < pow_detec_radius{
-                                mut new_crea := other
-                                new_crea.x -= win_width
-                                new_crea.y -= win_height
+                                new_crea := Boid{other.x+win_width, other.y-win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
                                 if dist < pow_trop_pres{
-                                    boids_trop << new_crea // a modifier
+                                    boids_trop << new_crea 
                                 }else{
-                                    boids_normal << new_crea// a modifier
+                                    boids_normal << new_crea
                                 }
                             }
-                        }*/
+                        }
                     }else{
-
+                        for other in app.opti_list[i+l+win_height/detect_radius][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - (other.y - win_height) ),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x, other.y-win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
                     }
-                }else if i+l > win_width/detect_radius{
+                }else if i+l >= win_width/detect_radius{
                     if j+c < 0{
-
-                    }else if j+c >win_height/detect_radius{
-                        
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c+win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x - win_width)),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x-win_width, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x + win_width)),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x+win_width, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
                     }else{
-
+                        for other in app.opti_list[i+l-win_height/detect_radius][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - (other.y + win_height)),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x, other.y+win_height, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    if j+c < 0{
+                        for other in app.opti_list[i+l][j+c+win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x-win_width)),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x-win_width, other.y, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else if j+c >= win_height/detect_radius{
+                        for other in app.opti_list[i+l][j+c-win_width/detect_radius]{
+                            dist := m.pow(m.abs(boid.x - (other.x+win_width)),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                new_crea := Boid{other.x+win_width, other.y, other.dir_x, other.dir_y, other.delta_dir_x, other.delta_dir_y}
+                                if dist < pow_trop_pres{
+                                    boids_trop << new_crea 
+                                }else{
+                                    boids_normal << new_crea
+                                }
+                            }
+                        }
+                    }else{
+                        for other in app.opti_list[i+l][j+c]{
+                            dist := m.pow(m.abs(boid.x - other.x),2)+m.pow(m.abs(boid.y - other.y),2)
+                            if dist < pow_detec_radius{
+                                if dist < pow_trop_pres{
+                                    boids_trop << other
+                                }else{
+                                    boids_normal << other
+                                }
+                            }
+                        }
                     }
                 }
             }
