@@ -15,14 +15,14 @@ const (
     win_width    = 600
     win_height   = 600
     bg_color     = gx.white
-    nb_boids = 500
+    nb_boids = 700
     boid_size = 2
     speed = 0.1
     detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
-    pow_trop_pres = 10
+    pow_trop_pres = 12
     cohesion = 1
-    separation = 30
+    separation = 40
     alignement = 30
 )
 
