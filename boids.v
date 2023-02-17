@@ -23,7 +23,7 @@ const (
     pow_trop_pres = 12
     cohesion = 1
     separation = 40
-    alignement = 30
+    alignement = 0.1
 )
 
 [heap]
@@ -231,22 +231,28 @@ fn on_frame(mut app App) {
             posi_cible_cohesion_y += other.y
             delta_repoussage_x += other.x
             delta_repoussage_y += other.y
+            average_dir_x += other.dir_x
+            average_dir_y += other.dir_y
         }
         for other in boids_normal{
             posi_cible_cohesion_x += other.x
             posi_cible_cohesion_y += other.y
+            average_dir_x += other.dir_x
+            average_dir_y += other.dir_y
         }
         posi_cible_cohesion_x /= nb_near
         posi_cible_cohesion_y /= nb_near
         delta_repoussage_x /= boids_trop.len
         delta_repoussage_y /= boids_trop.len
+        average_dir_x /= nb_near
+        average_dir_y /= nb_near
         delta_repoussage_x = boid.x - delta_repoussage_x
         delta_repoussage_y = boid.y - delta_repoussage_y
         posi_cible_cohesion_x -= boid.x
         posi_cible_cohesion_y -= boid.y
 
-        boid.dir_x += average_dir_x + posi_cible_cohesion_x*cohesion + delta_repoussage_x*separation
-        boid.dir_y += average_dir_y + posi_cible_cohesion_y*cohesion + delta_repoussage_y*separation
+        boid.dir_x += average_dir_x*alignement + posi_cible_cohesion_x*cohesion + delta_repoussage_x*separation
+        boid.dir_y += average_dir_y*alignement + posi_cible_cohesion_y*cohesion + delta_repoussage_y*separation
         boid.x += boid.dir_x/10*speed
         boid.y += boid.dir_y/10*speed
 
