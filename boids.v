@@ -30,6 +30,7 @@ const (
     separation = 40
     alignement = 0.1
     friction_reduc = 0.9
+    max_crea_trop_proche = 5
 )
 
 [heap]
@@ -233,7 +234,7 @@ fn on_frame(mut app App) {
         mut average_dir_y := 0.0
         mut delta_repoussage_x := 0.0
         mut delta_repoussage_y := 0.0
-        if boids_trop.len > 10{
+        if boids_trop.len > max_crea_trop_proche{
             for other in boids_trop{
                 posi_cible_cohesion_x += other.x
                 posi_cible_cohesion_y += other.y
