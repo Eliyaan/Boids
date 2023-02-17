@@ -1,6 +1,7 @@
 //A FAIRE
 
-//Après : refonte du mvt
+//Belle UI pour changer les paramètres
+//Optimisation :D
 
 
 
@@ -12,12 +13,12 @@ import rand as rd
 import math as m
 
 const (
-    win_width    = 600
-    win_height   = 600
+    win_width    = 640  //  /!\ the size must be un multiple du radius de détection
+    win_height   = 640
     bg_color     = gx.white
     nb_boids = 1000
     boid_size = 2
-    speed = 0.05
+    speed = 0.005
     detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
     pow_trop_pres = 12
@@ -59,7 +60,8 @@ fn main() {
         user_data: app
         bg_color: bg_color
         frame_fn: on_frame
-        sample_count: 10
+        sample_count: 6
+        fullscreen: true
     )
     for _ in 0..nb_boids{
         app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
@@ -253,8 +255,8 @@ fn on_frame(mut app App) {
 
         boid.dir_x += average_dir_x*alignement + posi_cible_cohesion_x*cohesion + delta_repoussage_x*separation
         boid.dir_y += average_dir_y*alignement + posi_cible_cohesion_y*cohesion + delta_repoussage_y*separation
-        boid.x += boid.dir_x/10*speed
-        boid.y += boid.dir_y/10*speed
+        boid.x += boid.dir_x*speed
+        boid.y += boid.dir_y*speed
 
         boid.dir_x *= 0.9
         boid.dir_y *= 0.9
@@ -274,7 +276,7 @@ fn on_frame(mut app App) {
             blue_color += u8(boids_trop.len*20)
         }
         
-        app.gg.draw_circle_filled(f32(boid.x), f32(boid.y), boid_size, gx.Color{red_color, 0, blue_color, 255})
+        app.gg.draw_circle_filled(f32(boid.x +50), f32(boid.y+60), boid_size, gx.Color{red_color, 0, blue_color, 255})
     }
     app.gg.end()
     app.opti_list = [][][]&Boid{len:win_width/detect_radius, init:[][]&Boid{len:win_height/detect_radius, init:[]&Boid{cap:10}}}
