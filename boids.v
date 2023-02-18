@@ -1,11 +1,8 @@
-//A FAIRE
-
-//Belle UI pour changer les paramètres
-//Optimisation :D
-
 /*
-idées : 
-- si y'a assez de gens dans ta subdiv, ne prendre en compte qu'eux
+A FAIRE:
+Bugs de couleur
+Opti
+Belle UI
 
 
 */
@@ -21,7 +18,7 @@ const (
     bg_color     = gx.white
     nb_boids = 1000
     boid_size = 2
-    speed = 0.005
+    speed = 0.003
     detect_radius = 20
     pow_detec_radius = detect_radius*detect_radius
     pow_trop_pres = 12
@@ -29,7 +26,7 @@ const (
     separation = 40
     alignement = 0.1
     friction_reduc = 0.9
-    max_crea_trop_proche = 7
+    max_crea_trop_proche = 10
 )
 
 [heap]
