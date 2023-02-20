@@ -1,11 +1,3 @@
-/*
-A FAIRE:
-Bugs de couleur
-Opti
-Bouton reset 
-
-
-*/
 module main
 import gg
 import gx
@@ -355,6 +347,9 @@ fn on_frame(mut app App) {
     app.gg.draw_rounded_rect_filled(1040, 236, 20, 20, 4,  gx.Color{r: 230, g: 200, b: 255}) // minus
     app.gg.draw_rounded_rect_filled(1070, 236, 20, 20, 4,  gx.Color{r: 255, g: 160, b: 255}) // plus
 
+    app.gg.draw_text(840, 265, "Reset: ", app.text_cfg)
+    app.gg.draw_rounded_rect_filled(1040, 266, 20, 20, 4, gx.pink) 
+
 
     app.gg.end()
     app.opti_list = [][][]&Boid{len:win_width/detect_radius, init:[][]&Boid{len:win_height/detect_radius, init:[]&Boid{cap:10}}}
@@ -410,6 +405,12 @@ fn (mut app App) check_buttons(mouse_x f64, mouse_y f64)!{//a opti
                         app.friction_reduc = m.round_sig(app.friction_reduc, 2)
                     }
                 (mouse_y > 236 && mouse_y < 256){app.max_crea_trop_proche -= 1}
+                (mouse_y > 266 && mouse_y < 286){
+                        app.boids = []
+                        for _ in 0..app.nb_boids{
+                            app.boids << Boid{rd.int_in_range(0, win_width)!, rd.int_in_range(0, win_height)!, rd.f64_in_range(-1.0, 1.0)!, rd.f64_in_range(-1.0, 1.0)!, 0.0, 0.0}
+                        }
+                    }
                 else{}
             }
         }else if mouse_x > 1070{
