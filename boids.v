@@ -315,6 +315,7 @@ fn on_frame(mut app App) {
     
     //UI
     app.gg.draw_rect_filled(800, 0, 800, 1300, gx.Color{r: 255, g: 220, b: 220})
+    app.gg.draw_text(1038, 7, "  -    +", app.text_cfg)
     app.gg.draw_text(840, 25, "Nb of boids: ${app.nb_boids}", app.text_cfg)
     app.gg.draw_rounded_rect_filled(1040, 26, 20, 20, 4,  gx.Color{r: 230, g: 200, b: 255}) // minus
     app.gg.draw_rounded_rect_filled(1070, 26, 20, 20, 4,  gx.Color{r: 255, g: 160, b: 255}) // plus
