@@ -6,14 +6,13 @@
 module main
 
 import gg
-import gx
 import rand as rd
 import math as m
 
 const win_width = 640 //  /!\ the size must be un multiple du radius de détection
 
 const win_height = 640
-const bg_color = gx.white
+const bg_color = gg.white
 const nb_boids = 1000
 const boid_size = 2
 const speed = 0.005
@@ -279,7 +278,7 @@ fn on_frame(mut app App) {
 			blue_color += u8(boids_trop.len * 20)
 		}
 
-		app.gg.draw_circle_filled(f32(boid.x + 50), f32(boid.y + 60), boid_size, gx.Color{red_color, 0, blue_color, 255})
+		app.gg.draw_circle_filled(f32(boid.x + 50), f32(boid.y + 60), boid_size, gg.Color{red_color, 0, blue_color, 255})
 	}
 	app.gg.end()
 	app.opti_list = [][][]&Boid{len: win_width / detect_radius, init: [][]&Boid{len: win_height / detect_radius, init: []&Boid{cap: 10}}}
